@@ -1,4 +1,5 @@
 import * as poseDetection from '@tensorflow-models/pose-detection';
+import * as tf from '@tensorflow/tfjs-core';
 import '@tensorflow/tfjs-backend-webgl';
 
 // MoveNet keypoint name → index mapping
@@ -14,6 +15,8 @@ let detector = null;
 export async function loadDetector() {
   if (detector) return detector;
   console.log('[PoseGuardian] MoveNet 모델 로딩 시작...');
+  await tf.setBackend('webgl');
+  await tf.ready();
   detector = await poseDetection.createDetector(
     poseDetection.SupportedModels.MoveNet,
     { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
