@@ -13,10 +13,12 @@ let detector = null;
 
 export async function loadDetector() {
   if (detector) return detector;
+  console.log('[PoseGuardian] MoveNet 모델 로딩 시작...');
   detector = await poseDetection.createDetector(
     poseDetection.SupportedModels.MoveNet,
     { modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING }
   );
+  console.log('[PoseGuardian] 모델 로딩 완료');
   return detector;
 }
 
