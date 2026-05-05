@@ -10,26 +10,22 @@
 
 ## 결정사항
 
-1. **방향 확정** — 초기 문서(React PWA + TF.js)대로 진행. Python 코드는 문서 읽기 전에 만든 것, 방향 불일치.
-2. **Python 코드 처우** — `src/` 참고용 유지, 수정 불필요.
-3. **운동 범위** — 3대 운동(스쿼트, 데드리프트, 벤치) 먼저, 이후 렛풀다운 등 추가.
-4. **개발 단계** — 1차: RGB only (main), 2차: RealSense depth (feature/depth 브랜치)
-5. **테스트 방식** — iPhone으로 운동 동영상 촬영 → 맥미니 영상 업로드로 분석 (카메라 거리 문제 회피)
-6. **RealSense** — USB 3.0 어댑터 새벽배송 주문. 도착하면 맥미니 연결 테스트.
+1. **방향 확정** — 초기 문서(React PWA + TF.js)대로 진행. Python 코드는 참고용 유지.
+2. **운동 범위** — 3대 운동(스쿼트, 데드리프트, 벤치) 먼저, 이후 렛풀다운 등 추가.
+3. **개발 단계** — 1차: RGB only (main), 2차: RealSense depth (feature/depth 브랜치)
+4. **테스트 방식** — iPhone으로 운동 동영상 촬영 → 맥미니 영상 업로드로 분석
+5. **RealSense** — USB 3.0 어댑터 새벽배송 주문. 도착하면 `rs-enumerate-devices`로 확인.
+6. **TTS** — Mac Chrome 버그 (무음), iPhone Chrome/Safari 정상 동작 확인.
 
 ## 완료 작업
 
-- Vite + React PWA 구조 (`web/`)
-- TF.js + MoveNet Lightning 설치, mediapipe ESM 이슈 해결
-- 운동별 분석 모듈: `squat.js`, `deadlift.js`, `bench.js`
-- 스켈레톤 오버레이, 피드백 패널, 운동 선택 UI
-- GitHub 레포, Vercel 배포 완료
-- 동영상 업로드 분석, 각도 콘솔 로그, TTS 경고 구현
-- iPhone Safari 원격 디버깅으로 동작 확인
+- Vite + React PWA, TF.js + MoveNet, GitHub, Vercel 배포
+- 운동별 분석 모듈 (squat/deadlift/bench), 스켈레톤 오버레이, 피드백 패널
+- 동영상 업로드 분석, TTS 경고, 감지 루프 동시실행 방지
 
-## 다음 세션 시작 시
+## 다음 세션 핵심 작업 (우선순위 순)
 
-- [ ] iPhone으로 운동 동영상 촬영 (전신 잡히게) → 맥미니 영상 업로드로 분석 테스트
-- [ ] 분석 임계값 튜닝 (전신 동영상 보면서)
-- [ ] USB 3.0 어댑터 도착 → RealSense 연결 확인 (`rs-enumerate-devices`)
-- [ ] PWA manifest 추가 (모바일 홈화면 설치)
+- [ ] **가이드 스켈레톤 UI** — 운동별 기준 실루엣을 화면에 고정 오버레이
+- [ ] **포지션 매칭** — 사용자가 실루엣에 맞으면 자동 분석 시작 (카메라 각도/거리 표준화)
+- [ ] **분석 임계값 튜닝** — 표준 각도 영상 기준으로 조정
+- [ ] USB 3.0 어댑터 도착 → RealSense 연결 확인
