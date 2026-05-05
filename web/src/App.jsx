@@ -71,7 +71,7 @@ export default function App() {
             muted
           />
           {result.keypoints && (
-            <PoseOverlay keypoints={result.keypoints} width={videoDim.w} height={videoDim.h} />
+            <PoseOverlay keypoints={result.keypoints} />
           )}
           {!ready && (
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#aaa' }}>

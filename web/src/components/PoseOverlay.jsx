@@ -12,16 +12,22 @@ const CONNECTIONS = [
 
 const MIN_SCORE = 0.3;
 
-export default function PoseOverlay({ keypoints, width, height }) {
+export default function PoseOverlay({ keypoints }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !keypoints) return;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, width, height);
 
-    // Connections
+    // 실제 렌더된 크기로 맞춤
+    const w = canvas.offsetWidth;
+    const h = canvas.offsetHeight;
+    canvas.width = w;
+    canvas.height = h;
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+
     ctx.strokeStyle = 'rgba(255,255,255,0.8)';
     ctx.lineWidth = 2;
     for (const [a, b] of CONNECTIONS) {
@@ -29,27 +35,24 @@ export default function PoseOverlay({ keypoints, width, height }) {
       if (!kpA || !kpB) continue;
       if ((kpA.score ?? 0) < MIN_SCORE || (kpB.score ?? 0) < MIN_SCORE) continue;
       ctx.beginPath();
-      ctx.moveTo(kpA.x * width, kpA.y * height);
-      ctx.lineTo(kpB.x * width, kpB.y * height);
+      ctx.moveTo(kpA.x * w, kpA.y * h);
+      ctx.lineTo(kpB.x * w, kpB.y * h);
       ctx.stroke();
     }
 
-    // Keypoints
     for (const kp of Object.values(keypoints)) {
       if ((kp.score ?? 0) < MIN_SCORE) continue;
       ctx.beginPath();
-      ctx.arc(kp.x * width, kp.y * height, 4, 0, 2 * Math.PI);
+      ctx.arc(kp.x * w, kp.y * h, 4, 0, 2 * Math.PI);
       ctx.fillStyle = '#4f8ef7';
       ctx.fill();
     }
-  }, [keypoints, width, height]);
+  }, [keypoints]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={width}
-      height={height}
-      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }}
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
     />
   );
 }
