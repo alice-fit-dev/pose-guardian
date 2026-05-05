@@ -8,7 +8,7 @@ import PoseOverlay from './components/PoseOverlay';
 import FeedbackPanel from './components/FeedbackPanel';
 
 const ANALYZERS = { squat: analyzeSquat, deadlift: analyzeDeadlift, bench: analyzeBench };
-const TTS_COOLDOWN_MS = 4000;
+const TTS_COOLDOWN_MS = 8000;
 
 export default function App() {
   const videoRef = useRef(null);
@@ -63,15 +63,15 @@ export default function App() {
   }
 
   // TTS
-  function speak(text) {
+  function speak(code, text) {
     if (!ttsEnabled || !window.speechSynthesis) return;
     const now = Date.now();
-    if (text === lastSpokenRef.current.text && now - lastSpokenRef.current.time < TTS_COOLDOWN_MS) return;
-    lastSpokenRef.current = { text, time: now };
+    if (code === lastSpokenRef.current.text && now - lastSpokenRef.current.time < TTS_COOLDOWN_MS) return;
+    lastSpokenRef.current = { text: code, time: now };
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
     utt.lang = 'ko-KR';
-    utt.rate = 1.1;
+    utt.rate = 1.0;
     window.speechSynthesis.speak(utt);
   }
 
@@ -90,7 +90,7 @@ export default function App() {
 
         // TTS — 가장 심각한 경고 하나만
         const danger = warnings.find(w => w.severity === 'danger') ?? warnings[0];
-        if (danger) speak(danger.message);
+        if (danger) speak(danger.code, danger.message);
       }
     }
     rafRef.current = requestAnimationFrame(loop);
