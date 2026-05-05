@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { loadDetector, detectPose } from './pose/estimator';
 import { analyzeSquat } from './analysis/squat';
 import { analyzeDeadlift } from './analysis/deadlift';
@@ -68,38 +68,43 @@ export default function App() {
     const now = Date.now();
     if (code === lastSpokenRef.current.text && now - lastSpokenRef.current.time < TTS_COOLDOWN_MS) return;
     lastSpokenRef.current = { text: code, time: now };
-    window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
     utt.lang = 'ko-KR';
     utt.rate = 1.0;
-    window.speechSynthesis.speak(utt);
+    window.speechSynthesis.cancel();
+    setTimeout(() => {
+      window.speechSynthesis.speak(utt);
+      // Chrome Mac 버그: pause/resume 없으면 무음
+      if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+    }, 100);
   }
 
-  // 감지 루프
-  const loop = useCallback(async () => {
-    const video = videoRef.current;
-    if (ready && video && video.readyState >= 2) {
-      const pose = await detectPose(video);
-      if (pose) {
-        const { warnings, angles } = ANALYZERS[exercise](pose.keypoints);
-        setResult({ warnings, angles, keypoints: pose.keypoints });
-
-        // 콘솔 로그
-        const angleStr = Object.entries(angles).map(([k, v]) => `${k}:${v.toFixed(0)}°`).join(' ');
-        if (angleStr) console.log(`[각도] ${angleStr}`);
-
-        // TTS — 가장 심각한 경고 하나만
-        const danger = warnings.find(w => w.severity === 'danger') ?? warnings[0];
-        if (danger) speak(danger.code, danger.message);
+  // 감지 루프 — 동시 실행 방지
+  const runningRef = useRef(false);
+  useEffect(() => {
+    let stopped = false;
+    async function loop() {
+      if (stopped) return;
+      const video = videoRef.current;
+      if (ready && video && video.readyState >= 2 && video.videoWidth > 0 && !runningRef.current) {
+        runningRef.current = true;
+        try {
+          const pose = await detectPose(video);
+          if (pose) {
+            const { warnings, angles } = ANALYZERS[exercise](pose.keypoints);
+            setResult({ warnings, angles, keypoints: pose.keypoints });
+            const danger = warnings.find(w => w.severity === 'danger') ?? warnings[0];
+            if (danger) speak(danger.code, danger.message);
+          }
+        } finally {
+          runningRef.current = false;
+        }
       }
+      rafRef.current = requestAnimationFrame(loop);
     }
     rafRef.current = requestAnimationFrame(loop);
+    return () => { stopped = true; cancelAnimationFrame(rafRef.current); };
   }, [ready, exercise, ttsEnabled]);
-
-  useEffect(() => {
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [loop]);
 
   return (
     <div style={{ background: '#111', minHeight: '100vh', color: '#fff', fontFamily: 'sans-serif', display: 'flex', flexDirection: 'column' }}>
@@ -110,6 +115,12 @@ export default function App() {
           style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: ttsEnabled ? '#4f8ef7' : '#333', color: '#fff', cursor: 'pointer', fontSize: 13 }}
         >
           {ttsEnabled ? '🔊 음성 ON' : '🔇 음성 OFF'}
+        </button>
+        <button
+          onClick={() => { const u = new SpeechSynthesisUtterance('테스트'); u.lang='ko-KR'; speechSynthesis.cancel(); setTimeout(() => { speechSynthesis.speak(u); if (speechSynthesis.paused) speechSynthesis.resume(); }, 100); }}
+          style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#555', color: '#fff', cursor: 'pointer', fontSize: 13 }}
+        >
+          🔈 테스트
         </button>
         <button
           onClick={() => fileInputRef.current.click()}
