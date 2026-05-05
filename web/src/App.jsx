@@ -62,26 +62,28 @@ export default function App() {
 
       <ExerciseSelector selected={exercise} onChange={setExercise} />
 
-      <div style={{ position: 'relative', flex: 1, display: 'flex', justifyContent: 'center', background: '#000' }}>
-        <video
-          ref={videoRef}
-          style={{ width: videoDim.w, height: videoDim.h, display: 'block' }}
-          playsInline
-          muted
-        />
-        {result.keypoints && (
-          <PoseOverlay keypoints={result.keypoints} width={videoDim.w} height={videoDim.h} />
-        )}
-        {!ready && (
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#aaa' }}>
-            모델 로딩 중...
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', background: '#000' }}>
+        <div style={{ position: 'relative', width: videoDim.w, height: videoDim.h }}>
+          <video
+            ref={videoRef}
+            style={{ width: '100%', height: '100%', display: 'block' }}
+            playsInline
+            muted
+          />
+          {result.keypoints && (
+            <PoseOverlay keypoints={result.keypoints} width={videoDim.w} height={videoDim.h} />
+          )}
+          {!ready && (
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#aaa' }}>
+              모델 로딩 중...
+            </div>
+          )}
+          {cameraError && (
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#f44336', textAlign: 'center' }}>
+              카메라 없음<br /><small>{cameraError}</small>
           </div>
-        )}
-        {cameraError && (
-          <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', color: '#f44336', textAlign: 'center' }}>
-            카메라 없음<br /><small>{cameraError}</small>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       <FeedbackPanel warnings={result.warnings} angles={result.angles} />
