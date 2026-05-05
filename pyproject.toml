@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pose-guardian"
+version = "0.1.0"
+description = "Weight training posture diagnosis — shoulder injury prevention"
+requires-python = ">=3.11"
+dependencies = [
+    "mediapipe>=0.10.14",
+    "opencv-python>=4.10.0",
+    "numpy>=1.26.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.4",
+]
+
+[project.scripts]
+pose-guardian = "src.app:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
